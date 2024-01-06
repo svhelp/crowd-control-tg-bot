@@ -1,4 +1,5 @@
-const TelegramBot = require('node-telegram-bot-api');
+import 'dotenv/config'
+import TelegramBot from 'node-telegram-bot-api'
 
 const token = process.env.TELEGRAM_API_KEY;
 

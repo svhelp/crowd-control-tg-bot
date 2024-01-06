@@ -2,12 +2,10 @@
   "name": "crowd-control-tg-bot",
   "version": "0.1.0",
   "description": "A bot used to gather people together using Telegram.",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [
     "bot",
@@ -16,6 +14,12 @@
   "author": "sv_help",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.3.1",
     "node-telegram-bot-api": "^0.64.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/node-telegram-bot-api": "^0.64.2",
+    "typescript": "^5.3.3"
   }
 }
