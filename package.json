@@ -1,0 +1,21 @@
+{
+  "name": "crowd-control-tg-bot",
+  "version": "0.1.0",
+  "description": "A bot used to gather people together using Telegram.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bot",
+    "telegram"
+  ],
+  "author": "sv_help",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0"
+  }
+}
