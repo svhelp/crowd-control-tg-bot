@@ -2,10 +2,10 @@
   "name": "crowd-control-tg-bot",
   "version": "0.1.0",
   "description": "A bot used to gather people together using Telegram.",
-  "main": "api/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node api/index.js"
+    "start": "node dist/index.js"
   },
   "keywords": [
     "bot",

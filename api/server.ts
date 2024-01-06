@@ -1,4 +1,4 @@
-import { bot } from '../src/bot';
+import { bot } from '../src';
 
 export default async function handleRequest(request: Request) {
   try {
