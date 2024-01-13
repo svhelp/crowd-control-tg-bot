@@ -9,9 +9,10 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "rootDir": "src",
-    "outDir": "dist",
+    "outDir": "./dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
   },
+  "include": ["src"],
 }
   
