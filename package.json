@@ -15,7 +15,9 @@
   "author": "sv_help",
   "license": "ISC",
   "dependencies": {
+    "@vercel/postgres-kysely": "^0.7.2",
     "dotenv": "^16.3.1",
+    "kysely": "^0.27.2",
     "telegraf": "^4.15.3"
   },
   "devDependencies": {

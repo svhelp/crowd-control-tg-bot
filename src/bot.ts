@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { Telegraf } from "telegraf";
 import { InlineQueryResult } from "telegraf/types";
 
