@@ -1,5 +1,7 @@
 import { createKysely } from "@vercel/postgres-kysely";
+import { jsonArrayFrom } from 'kysely/helpers/postgres'
 import { Database } from "domain/db/database";
+import { Team } from "domain/team";
 
 const MAX_TEAMS = 10
 
@@ -87,15 +89,45 @@ export const leaveTeam = async (userId: string, chatId: string, name: string) =>
 }
 
 export const getUserTeams = async (userId: string) => {
-  return await db.selectFrom('teamMemberRelation')
+  const teams = await db.selectFrom('teamMemberRelation')
+    .select('teamId')
     .where('userId', '=', userId)
-    .innerJoin('team', 'team.id', 'teamMemberRelation.teamId')
+    .distinct()
     .execute()
+
+  if (teams.length === 0) {
+    return []
+  }
+
+  const data: Team[] = await db.selectFrom('team')
+    .select((eb) => [
+      'name',
+      jsonArrayFrom(
+        eb.selectFrom('teamMemberRelation')
+          .select(['userId'])
+          .whereRef('teamMemberRelation.teamId', '=', 'team.id')
+          .limit(10)
+      ).as('members')
+    ])
+    .where('id', 'in', teams.map(t => t.teamId))
+    .execute()
+
+  return data
 }
 
 export const getChatTeams = async (chatId: string) => {
-  return await db.selectFrom('team')
+  const data: Team[] = await db.selectFrom('team')
+    .select((eb) => [
+      'name',
+      jsonArrayFrom(
+        eb.selectFrom('teamMemberRelation')
+          .select(['userId'])
+          .whereRef('teamMemberRelation.teamId', '=', 'team.id')
+          .limit(10)
+      ).as('members')
+    ])
     .where('chatId', '=', chatId)
-    .innerJoin('teamMemberRelation', 'teamMemberRelation.teamId', 'team.id')
     .execute()
+
+  return data
 }
