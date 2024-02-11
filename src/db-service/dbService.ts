@@ -2,12 +2,17 @@ import { createKysely } from "@vercel/postgres-kysely";
 import { jsonArrayFrom } from 'kysely/helpers/postgres'
 import { Database } from "domain/db/database";
 import { Team } from "domain/team";
+import { NamedModel } from "domain/namedModel";
 
 const MAX_TEAMS = 10
 
 const db = createKysely<Database>();
 
 export const createTeam = async (creatorId: string, chatId: string, name: string) => {
+  if (name) {
+    return 'Необходимо ввести название команды.'
+  }
+
   const existingTeam = await db.selectFrom('team')
     .select('id')
     .where('chatId', '=', chatId)
@@ -40,6 +45,10 @@ export const createTeam = async (creatorId: string, chatId: string, name: string
 }
 
 export const joinTeam = async (userId: string, chatId: string, name: string) => {
+  if (name) {
+    return 'Необходимо ввести название команды.'
+  }
+
   const team = await db.selectFrom('team')
     .select('id')
     .where('chatId', '=', chatId)
@@ -67,6 +76,10 @@ export const joinTeam = async (userId: string, chatId: string, name: string) => 
 }
 
 export const leaveTeam = async (userId: string, chatId: string, name: string) => {
+  if (name) {
+    return 'Необходимо ввести название команды.'
+  }
+  
   const team = await db.selectFrom('team')
     .select('id')
     .where('chatId', '=', chatId)
@@ -88,6 +101,21 @@ export const leaveTeam = async (userId: string, chatId: string, name: string) =>
       : 'Вы успешно покинули команду.'
 }
 
+export const getTeamMembers = async (chatId: string, name: string) => {
+  const team = await db.selectFrom('team')
+    .select('id')
+    .where('name', '=', name)
+    .where('chatId', '=', chatId)
+    .executeTakeFirst()
+
+  const data = await db.selectFrom('teamMemberRelation')
+    .select('userId')
+    .where('teamId', '=', team.id)
+    .execute()
+
+  return data.map(x => x.userId)
+}
+
 export const getUserTeams = async (userId: string) => {
   const teams = await db.selectFrom('teamMemberRelation')
     .select('teamId')
@@ -99,16 +127,8 @@ export const getUserTeams = async (userId: string) => {
     return []
   }
 
-  const data: Team[] = await db.selectFrom('team')
-    .select((eb) => [
-      'name',
-      jsonArrayFrom(
-        eb.selectFrom('teamMemberRelation')
-          .select(['userId'])
-          .whereRef('teamMemberRelation.teamId', '=', 'team.id')
-          .limit(10)
-      ).as('members')
-    ])
+  const data: NamedModel[] = await db.selectFrom('team')
+    .select('name')
     .where('id', 'in', teams.map(t => t.teamId))
     .execute()
 

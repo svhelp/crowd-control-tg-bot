@@ -3,4 +3,5 @@ export enum CommandType {
   Join = "join",
   Leave = "leave",
   List = "list",
+  Notify = "notify",
 }

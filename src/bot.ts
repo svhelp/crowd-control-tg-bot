@@ -1,9 +1,10 @@
-import { Telegraf } from "telegraf";
+import { Format, Telegraf } from "telegraf";
 import { InlineQueryResult } from "telegraf/types";
 
 import { CommandType } from './domain/commandTypes';
-import { Team } from './domain/team';
-import { createTeam, getChatTeams, getUserTeams, joinTeam, leaveTeam } from "./db-service/dbService";
+import { createTeam, getChatTeams, getTeamMembers, getUserTeams, joinTeam, leaveTeam } from "./db-service/dbService";
+
+const { bold, fmt, mention, join } = Format
 
 const token = process.env.TELEGRAM_API_KEY ?? '';
 
@@ -37,8 +38,29 @@ bot.command(CommandType.List, async ctx => {
   const { message } = ctx.update
 
   const chatTeams = await getChatTeams(message.chat.id.toString())
+  const chatTeamsDescription = chatTeams.map(t => {
+    const mentions = t.members.map((m, index) => mention(index.toString(), parseInt(m.userId)))
+    const teamName = fmt`${bold(t.name)}: ${join(mentions, ', ')}`
 
-  const formattedText = chatTeams.map(t => `<b>${t.name}</b>: ${t.members.map(m => m.userId).join(', ')}`).join('\n')
+    return teamName
+  })
+
+  const formattedText = join(chatTeamsDescription, '\n')
+
+  return await ctx.sendMessage(formattedText, { disable_notification: true })
+})
+
+bot.command(CommandType.Notify, async ctx => {
+  const { message } = ctx.update
+
+  if (!message.via_bot || message.via_bot.id !== ctx.botInfo.id) {
+    return await ctx.sendMessage("Дружочек, тебе нельзя запускать эту команду")
+  }
+
+  const members = await getTeamMembers(message.chat.id.toString(), ctx.payload.split("\n")[0])
+  const mentions = members.map(m => mention('.', parseInt(m)))
+  
+  const formattedText = fmt`Hey hey hey\n${join(mentions)}`
 
   return await ctx.sendMessage(formattedText)
 })
@@ -48,20 +70,22 @@ bot.on("inline_query", async ctx => {
     return
   }
 
+  console.log(ctx)
+
   const existingTeams = await getUserTeams(ctx.inlineQuery.from.id.toString())
 
   const teams = existingTeams
     .map(
       (team): InlineQueryResult => {
-        const members = team.members.map(m => `@${m.userId}`).join(", ")
+        const message = `/${CommandType.Notify}@${ctx.botInfo.username} ${team.name}\n${ctx.inlineQuery.query}`
 
         return {
           type: "article",
           id: team.name,
           title: team.name,
-          description: members,
+          description: '',
           input_message_content: {
-            message_text: `${members} ${ctx.inlineQuery.query}`,
+            message_text: message
           },
         }
       },
