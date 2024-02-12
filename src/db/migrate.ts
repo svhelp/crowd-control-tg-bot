@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { promises as fs } from 'fs'
 import { createKysely } from "@vercel/postgres-kysely";
-import { Database } from "domain/db/database";
+import { Database } from "./database";
 import { FileMigrationProvider, Migrator } from "kysely"
 
 export const migrate = async () => {

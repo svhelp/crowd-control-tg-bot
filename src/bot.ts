@@ -1,8 +1,8 @@
 import { Format, Telegraf } from "telegraf";
 import { InlineQueryResult } from "telegraf/types";
 
-import { CommandType } from './domain/commandTypes';
-import { createTeam, getChatTeams, getTeamMembers, getUserTeams, joinTeam, leaveTeam } from "./db-service/dbService";
+import { CommandType } from './commands/commandTypes';
+import { createTeam, getChatTeams, getTeamMembers, getUserTeams, joinTeam, leaveTeam } from "./db-service";
 
 const { bold, fmt, mention, join } = Format
 

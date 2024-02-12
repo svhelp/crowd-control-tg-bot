@@ -1,1 +1,1 @@
-export { migrate } from './migrate'
+export { createTeam, joinTeam, leaveTeam, getChatTeams, getTeamMembers, getUserTeams } from './dbService'

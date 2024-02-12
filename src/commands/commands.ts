@@ -1,4 +1,4 @@
-import { CommandType } from "../domain/commandTypes";
+import { CommandType } from "./commandTypes";
 
 export const commands: {[key: string]: string} = {
   [CommandType.Create]: "создать группу",

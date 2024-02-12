@@ -1,6 +1,6 @@
 import { createKysely } from "@vercel/postgres-kysely";
 import { jsonArrayFrom } from 'kysely/helpers/postgres'
-import { Database } from "domain/db/database";
+import { Database } from "db/database";
 import { Team } from "domain/team";
 import { NamedModel } from "domain/namedModel";
 
