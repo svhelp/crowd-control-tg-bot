@@ -1,3 +1,4 @@
 export interface Member {
-    userId: string
+    id: number,
+    username?: string
 }

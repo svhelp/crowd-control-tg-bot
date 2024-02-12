@@ -2,6 +2,6 @@ import { Generated } from "kysely"
 
 export interface TeamMemberRelationTable {
     id: Generated<number>
-    userId: string
+    userId: number
     teamId: number
 }

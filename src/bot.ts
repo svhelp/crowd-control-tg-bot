@@ -18,7 +18,7 @@ bot.command(CommandType.Create, async ctx => {
     return illegalSourceException
   }
 
-  const result = await createTeam(message.from.id.toString(), message.chat.id.toString(), ctx.payload)
+  const result = await createTeam(message.from, message.chat.id, ctx.payload)
 
   return await ctx.sendMessage(result)
 })
@@ -30,7 +30,7 @@ bot.command(CommandType.Join, async ctx => {
     return illegalSourceException
   }
 
-  const result = await joinTeam(message.from.id.toString(), message.chat.id.toString(), ctx.payload)
+  const result = await joinTeam(message.from, message.chat.id, ctx.payload)
 
   return await ctx.sendMessage(result)
 })
@@ -42,7 +42,7 @@ bot.command(CommandType.Leave, async ctx => {
     return illegalSourceException
   }
 
-  const result = await leaveTeam(message.from.id.toString(), message.chat.id.toString(), ctx.payload)
+  const result = await leaveTeam(message.from.id, message.chat.id, ctx.payload)
 
   return await ctx.sendMessage(result)
 })
@@ -54,15 +54,18 @@ bot.command(CommandType.List, async ctx => {
     return illegalSourceException
   }
 
-  const chatTeams = await getChatTeams(message.chat.id.toString())
-  const chatTeamsDescription = chatTeams.map(t => {
-    const mentions = t.members.map((m, index) => mention(index.toString(), parseInt(m.userId)))
-    const teamName = fmt`${bold(t.name)}: ${join(mentions, ', ')}`
+  const chatTeams = await getChatTeams(message.chat.id)
+  // const chatTeamsDescription = chatTeams.map(t => {
+  //   const mentions = t.members.map((m, index) => mention(index.toString(), m.userId))
+  //   const teamName = fmt`${bold(t.name)} ${join(mentions, ', ')}`
 
-    return teamName
-  })
+  //   return teamName
+  // })
 
-  const formattedText = join(chatTeamsDescription, '\n')
+  // const formattedText = join(chatTeamsDescription, '\n')
+
+  const teamNames = chatTeams.map(team => bold(team.name))
+  const formattedText = fmt`Список групп чата:\n ${join(teamNames, '\n')}`
 
   return await ctx.sendMessage(formattedText, { disable_notification: true })
 })
@@ -74,33 +77,33 @@ bot.command(CommandType.Notify, async ctx => {
     return await ctx.sendMessage(illegalInvokerException)
   }
 
-  const members = await getTeamMembers(message.chat.id.toString(), ctx.payload.split("\n")[0])
+  const members = await getTeamMembers(message.chat.id, ctx.payload.split("\n")[0])
   const mentions = members.map(m => mention('.', parseInt(m)))
   
   const formattedText = fmt`Hey hey hey\n${join(mentions)}`
-  
+
   return await ctx.sendMessage(formattedText)
 })
 
 bot.on("inline_query", async ctx => {
-  if (!ctx.inlineQuery.query) {
+  const { botInfo, inlineQuery } = ctx
+
+  if (!inlineQuery.query || ['private', 'sender'].includes(inlineQuery.chat_type)) {
     return
   }
 
-  console.log(ctx.inlineQuery)
-
-  const existingTeams = await getUserTeams(ctx.inlineQuery.from.id.toString())
+  const existingTeams = await getUserTeams(inlineQuery.from.id)
 
   const teams = existingTeams
     .map(
       (team): InlineQueryResult => {
-        const message = `/${CommandType.Notify}@${ctx.botInfo.username} ${team.name}\n${ctx.inlineQuery.query}`
+        const message = `/${CommandType.Notify}@${botInfo.username} ${team.name}\n${inlineQuery.query}`
 
         return {
           type: "article",
           id: team.name,
           title: team.name,
-          description: '',
+          description: team.members.filter(m => m.username).map(m => m.username).join(', '),
           input_message_content: {
             message_text: message
           },
