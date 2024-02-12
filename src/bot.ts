@@ -3,6 +3,7 @@ import { InlineQueryResult } from "telegraf/types";
 
 import { CommandType } from './commands/commandTypes';
 import { createTeam, getChatTeams, getTeamMembers, getUserTeams, joinTeam, leaveTeam } from "./db-service";
+import { illegalInvokerException } from "./localization/exceptions";
 
 const { bold, fmt, mention, join } = Format
 
@@ -54,7 +55,7 @@ bot.command(CommandType.Notify, async ctx => {
   const { message } = ctx.update
 
   if (!message.via_bot || message.via_bot.id !== ctx.botInfo.id) {
-    return await ctx.sendMessage("Дружочек, тебе нельзя запускать эту команду")
+    return await ctx.sendMessage(illegalInvokerException)
   }
 
   const members = await getTeamMembers(message.chat.id.toString(), ctx.payload.split("\n")[0])
