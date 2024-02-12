@@ -3,8 +3,8 @@ import { jsonArrayFrom } from 'kysely/helpers/postgres'
 import { Database } from "db/database";
 import { Team } from "domain/team";
 import { NamedModel } from "domain/namedModel";
-import { teamNameMissingException, teamAlreadyExistsException, maxTeamsReachedException, teamDoesNotExistException } from "localization/exceptions";
-import { teamCreatedSuccessfuly, teamJoinedSuccessfuly, teamLeftNevertheless, teamLeftSuccessfuly } from "localization/results";
+import { teamNameMissingException, teamAlreadyExistsException, maxTeamsReachedException, teamDoesNotExistException } from "../localization/exceptions";
+import { teamCreatedSuccessfuly, teamJoinedSuccessfuly, teamLeftNevertheless, teamLeftSuccessfuly } from "../localization/results";
 
 const MAX_TEAMS = 10
 

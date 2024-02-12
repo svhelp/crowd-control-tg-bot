@@ -3,7 +3,7 @@ import { InlineQueryResult } from "telegraf/types";
 
 import { CommandType } from './commands/commandTypes';
 import { createTeam, getChatTeams, getTeamMembers, getUserTeams, joinTeam, leaveTeam } from "./db-service";
-import { illegalInvokerException } from "./localization/exceptions";
+import { illegalInvokerException, illegalSourceException } from "./localization/exceptions";
 
 const { bold, fmt, mention, join } = Format
 
@@ -14,6 +14,10 @@ export const bot = new Telegraf(token);
 bot.command(CommandType.Create, async ctx => {
   const { message } = ctx.update
 
+  if (message.chat.type === "private") {
+    return illegalSourceException
+  }
+
   const result = await createTeam(message.from.id.toString(), message.chat.id.toString(), ctx.payload)
 
   return await ctx.sendMessage(result)
@@ -21,6 +25,10 @@ bot.command(CommandType.Create, async ctx => {
 
 bot.command(CommandType.Join, async ctx => {
   const { message } = ctx.update
+
+  if (message.chat.type === "private") {
+    return illegalSourceException
+  }
 
   const result = await joinTeam(message.from.id.toString(), message.chat.id.toString(), ctx.payload)
 
@@ -30,6 +38,10 @@ bot.command(CommandType.Join, async ctx => {
 bot.command(CommandType.Leave, async ctx => {
   const { message } = ctx.update
 
+  if (message.chat.type === "private") {
+    return illegalSourceException
+  }
+
   const result = await leaveTeam(message.from.id.toString(), message.chat.id.toString(), ctx.payload)
 
   return await ctx.sendMessage(result)
@@ -37,6 +49,10 @@ bot.command(CommandType.Leave, async ctx => {
 
 bot.command(CommandType.List, async ctx => {
   const { message } = ctx.update
+
+  if (message.chat.type === "private") {
+    return illegalSourceException
+  }
 
   const chatTeams = await getChatTeams(message.chat.id.toString())
   const chatTeamsDescription = chatTeams.map(t => {
@@ -62,7 +78,7 @@ bot.command(CommandType.Notify, async ctx => {
   const mentions = members.map(m => mention('.', parseInt(m)))
   
   const formattedText = fmt`Hey hey hey\n${join(mentions)}`
-
+  
   return await ctx.sendMessage(formattedText)
 })
 
@@ -71,7 +87,7 @@ bot.on("inline_query", async ctx => {
     return
   }
 
-  console.log(ctx)
+  console.log(ctx.inlineQuery)
 
   const existingTeams = await getUserTeams(ctx.inlineQuery.from.id.toString())
 
